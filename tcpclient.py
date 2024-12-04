@@ -31,7 +31,7 @@ source_ip = '192.168.1.156'
 ip_id = random.randint(0, 65535)
 
 # Initialize sequence number
-seq_num = random.randint(0, 4294967295)
+seq_num = 2147483600
 
 # Step 1: SYN packet (part of 3-way handshake)
 syn = IP(src=source_ip, dst=destination_ip, id=ip_id) / TCP(sport=source_port, dport=destination_port, flags="S", seq=seq_num) 
@@ -44,7 +44,7 @@ if not syn_ack:
     exit()
 
 # Step 2: ACK packet (completing the handshake)
-ack = IP(src=source_ip, dst=destination_ip, id=ip_id) / TCP(sport=source_port, dport=destination_port, flags="A", seq=seq_num, ack=syn_ack.seq + 1)
+ack = IP(src=source_ip, dst=destination_ip, id=ip_id) / TCP(sport=source_port, dport=destination_port, flags="A", seq=seq_num, ack=syn_ack.seq)
 send(ack)
 print("Sent ACK")
 seq_num += 1  # Increment SEQ number
@@ -52,13 +52,13 @@ ip_id += 1  # Increment IP.id
 
 def send_packet(payload, flags="PA"):
     global seq_num, ip_id
-    pkt = IP(src=source_ip, dst=destination_ip, id=ip_id) / TCP(sport=source_port, dport=destination_port, flags=flags, seq=seq_num) / Raw(load=payload)
+    pkt = IP(src=source_ip, dst=destination_ip, id=ip_id) / TCP(sport=source_port, dport=destination_port, flags=flags, seq=seq_num, ack=syn_ack.seq + 1) / Raw(load=payload)
     send(pkt)
-    seq_num += len(payload)  # Increment sequence number by the length of the payload
 
 # Step 3: Send data
 payload = "Hello, this is a test!"  # Replace with your data
 send_packet(payload)
+seq_num += len(payload) # Increment SEQ number by the length of the payload
 ip_id += 1  # Increment IP.id
 print("Sent Data Payload")
 
