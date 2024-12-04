@@ -27,6 +27,12 @@ def handle_connection(pkt):
     elif pkt.haslayer(TCP) and pkt.haslayer(Raw):  # Handle data from client, and send FINACK
         #payload = pkt[Raw].load
         #print(f"Payload: {payload}")
+        print("Received Payload from Client, Sending ACK")
+        ack = IP(src=pkt[IP].dst, dst=pkt[IP].src, id=ip_id) / \
+              TCP(sport=pkt[TCP].dport, dport=pkt[TCP].sport, seq=server_seq, ack=pkt[TCP].seq + len(pkt[Raw].load) + 1, flags="A")
+        send(ack)
+        ip_id += 1  # Increment IP.id
+        server_seq += 1 # Increment sequence number
         print("Received Payload from Client, Sending FIN ACK")
         fin_ack = IP(src=pkt[IP].dst, dst=pkt[IP].src, id=ip_id) / \
                   TCP(sport=pkt[TCP].dport, dport=pkt[TCP].sport, seq=server_seq, ack=pkt[TCP].seq + len(pkt[Raw].load) + 1, flags="FA")

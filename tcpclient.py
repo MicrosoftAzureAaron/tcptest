@@ -52,7 +52,7 @@ ip_id += 1  # Increment IP.id
 
 def send_packet(payload, flags="PA"):
     global seq_num, ip_id
-    pkt = IP(src=source_ip, dst=destination_ip, id=ip_id) / TCP(sport=source_port, dport=destination_port, flags=flags, seq=seq_num, ack=syn_ack.seq + 1) / Raw(load=payload)
+    pkt = IP(src=source_ip, dst=destination_ip, id=ip_id) / TCP(sport=source_port, dport=destination_port, flags=flags, seq=seq_num, ack=syn_ack.seq) / Raw(load=payload)
     send(pkt)
 
 # Step 3: Send data
