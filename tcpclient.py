@@ -53,7 +53,7 @@ ip_id += 1  # Increment IP.id
 def send_packet(payload, flags="PA"):
     global seq_num, ip_id
     pkt = IP(src=source_ip, dst=destination_ip, id=ip_id) / TCP(sport=source_port, dport=destination_port, flags=flags, seq=seq_num, ack=syn_ack.seq) / Raw(load=payload)
-#    pkt = IP(src=source_ip, dst=destination_ip, id=ip_id) / TCP(sport=source_port, dport=destination_port, flags=flags, seq=seq_num) / Raw(load=payload)
+#   pkt = IP(src=source_ip, dst=destination_ip, id=ip_id) / TCP(sport=source_port, dport=destination_port, flags=flags, seq=seq_num) / Raw(load=payload)
     send(pkt)
 
 
@@ -104,15 +104,16 @@ time.sleep(18)
 
 # Send the client's FIN
 client_fin = IP(src=source_ip, dst=destination_ip, id=ip_id) / TCP(sport=source_port, dport=destination_port, flags="FA", seq=seq_num, ack=server_fin_ack.seq + 1)
-fin_ack_from_server = sr1(client_fin, timeout=5)
+#fin_ack_from_server = sr1(client_fin, timeout=5)
+send(client_fin)
 seq_num += 1  # Increment SEQ number
 ip_id += 1  # Increment IP.id
 
-if fin_ack_from_server:
-    print(f"Captured server's ACK for client FIN: {fin_ack_from_server.summary()}")
-    print("FIN-ACK sequence with 18-second delay completed.")
-else:
-    print("No ACK received for client's FIN.")
+# if fin_ack_from_server:
+#     print(f"Captured server's ACK for client FIN: {fin_ack_from_server.summary()}")
+#     print("FIN-ACK sequence with 18-second delay completed.")
+# else:
+#     print("No ACK received for client's FIN.")
  
 # def packet_filter(packet):#, destination_ip):
 #     # Check if the packet has the necessary layers and matches criteria

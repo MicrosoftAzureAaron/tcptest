@@ -32,13 +32,13 @@ def handle_connection(pkt):
               TCP(sport=pkt[TCP].dport, dport=pkt[TCP].sport, seq=server_seq, ack=pkt[TCP].seq + len(pkt[Raw].load), flags="A")
         send(ack)
         ip_id += 1  # Increment IP.id
-        server_seq += 1 # Increment sequence number
+        #server_seq += 1 # Increment sequence number
         print("Received Payload from Client, Sending FIN ACK")
         fin_ack = IP(src=pkt[IP].dst, dst=pkt[IP].src, id=ip_id) / \
                   TCP(sport=pkt[TCP].dport, dport=pkt[TCP].sport, seq=server_seq, ack=pkt[TCP].seq + len(pkt[Raw].load), flags="FA")
         send(fin_ack)
         ip_id += 1  # Increment IP.id
-        server_seq += 1 # Increment sequence number
+        #server_seq += 1 # Increment sequence number
     elif pkt.haslayer(TCP) and pkt[TCP].flags == "FA":  # Handle FINACK from client
         print("Received FIN-ACK from Client")
         # # Send ACK in response to FIN-ACK
