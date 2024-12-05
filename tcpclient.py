@@ -57,7 +57,7 @@ def send_packet(payload, flags="PA"):
 
 # Step 3: Send data
 payload = "Hello, this is a test!"  # Replace with your data
-send_packet(payload)
+send_packet(payload, flags="P")
 seq_num += len(payload) # Increment SEQ number by the length of the payload
 ip_id += 1  # Increment IP.id
 print("Sent Data Payload")
