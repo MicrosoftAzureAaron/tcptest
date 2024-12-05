@@ -47,17 +47,19 @@ if not syn_ack:
 ack = IP(src=source_ip, dst=destination_ip, id=ip_id) / TCP(sport=source_port, dport=destination_port, flags="A", seq=seq_num, ack=syn_ack.seq)
 send(ack)
 print("Sent ACK")
-seq_num += 1  # Increment SEQ number
+#seq_num += 1  # Increment SEQ number
 ip_id += 1  # Increment IP.id
 
 def send_packet(payload, flags="PA"):
     global seq_num, ip_id
     pkt = IP(src=source_ip, dst=destination_ip, id=ip_id) / TCP(sport=source_port, dport=destination_port, flags=flags, seq=seq_num, ack=syn_ack.seq) / Raw(load=payload)
+#    pkt = IP(src=source_ip, dst=destination_ip, id=ip_id) / TCP(sport=source_port, dport=destination_port, flags=flags, seq=seq_num) / Raw(load=payload)
     send(pkt)
+
 
 # Step 3: Send data
 payload = "Hello, this is a test!"  # Replace with your data
-send_packet(payload, flags="P")
+send_packet(payload)
 seq_num += len(payload) # Increment SEQ number by the length of the payload
 ip_id += 1  # Increment IP.id
 print("Sent Data Payload")
@@ -72,7 +74,7 @@ print("Sent Data Payload")
 def capture_server_fin(packet):
     return (
         IP in packet and
-        TCP in packet and
+        TCP in packet and 
         packet[IP].src == destination_ip and
         packet[IP].dst == source_ip and
         packet[TCP].flags == "FA"
@@ -88,13 +90,13 @@ if not server_fin_ack:
 server_fin_ack = server_fin_ack[0]
 print(f"Captured server's FIN-ACK: {server_fin_ack.summary()}")
 
-# Acknowledge the server's FIN
-ack_to_server_fin = IP(src=source_ip, dst=destination_ip, id=ip_id) / TCP(sport=source_port, dport=destination_port, flags="A", seq=seq_num, ack=server_fin_ack.seq + 1)
-send(ack_to_server_fin)
-seq_num += 1  # Increment SEQ number
-ip_id += 1  # Increment IP.id
+# # Acknowledge the server's FIN
+# ack_to_server_fin = IP(src=source_ip, dst=destination_ip, id=ip_id) / TCP(sport=source_port, dport=destination_port, flags="A", seq=seq_num, ack=server_fin_ack.seq + 1)
+# send(ack_to_server_fin)
+# seq_num += 1  # Increment SEQ number
+# ip_id += 1  # Increment IP.id
 
-print("Acknowledged server's FIN-ACK.")
+# print("Acknowledged server's FIN-ACK.")
 
 # Wait for 18 seconds
 print("Waiting for 18 seconds before sending client's FIN...")
@@ -112,21 +114,21 @@ if fin_ack_from_server:
 else:
     print("No ACK received for client's FIN.")
  
-def packet_filter(packet):#, destination_ip):
-    # Check if the packet has the necessary layers and matches criteria
-    if (
-        IP in packet and
-        TCP in packet and
-        #packet[IP].dst == destination_ip and
-        #packet[TCP].dport == destination_port and
-        packet[TCP].flags == "R" and  # TCP RST flag
-        packet[IP].id == 1  # IP ID is 1
-    ):
-        print(f"RST Packet Caught: {packet.summary()}")
-        print(f"Source IP: {packet[IP].src}, Source Port: {packet[TCP].sport}")
-        print(f"Destination IP: {packet[IP].dst}, Destination Port: {packet[TCP].dport}")
-        print(f"IP ID: {packet[IP].id}")
+# def packet_filter(packet):#, destination_ip):
+#     # Check if the packet has the necessary layers and matches criteria
+#     if (
+#         IP in packet and
+#         TCP in packet and
+#         #packet[IP].dst == destination_ip and
+#         #packet[TCP].dport == destination_port and
+#         packet[TCP].flags == "R" and  # TCP RST flag
+#         packet[IP].id == 1  # IP ID is 1
+#     ):
+#         print(f"RST Packet Caught: {packet.summary()}")
+#         print(f"Source IP: {packet[IP].src}, Source Port: {packet[TCP].sport}")
+#         print(f"Destination IP: {packet[IP].dst}, Destination Port: {packet[TCP].dport}")
+#         print(f"IP ID: {packet[IP].id}")
 
-# Start sniffing packets
-print(f"Listening for RST packets on {source_ip}:{source_port} with IP ID=1...")
-sniff(filter=f"tcp port {source_port}", prn=packet_filter, timeout=5) ##ADJUST TIMEOUT FOR VFP RST
+# # Start sniffing packets
+# print(f"Listening for RST packets on {source_ip}:{source_port} with IP ID=1...")
+# sniff(filter=f"tcp port {source_port}", prn=packet_filter, timeout=5) ##ADJUST TIMEOUT FOR VFP RST
